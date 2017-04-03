@@ -28,6 +28,7 @@ class Model(Simulation):
         """
         Simulation.__init__(self)
         self._logger = Logger(self)
+        self._measurements = []
         task_info_list = configuration.task_info_list
         proc_info_list = configuration.proc_info_list
         self._cycles_per_ms = configuration.cycles_per_ms
@@ -76,12 +77,19 @@ class Model(Simulation):
     def now_ms(self):
         return float(self.now()) / self._cycles_per_ms
 
+    def addNewMeasurement(self, measurement):
+        self._measurements.append(measurement)
+
     @property
     def logs(self):
         """
         All the logs from the :class:`Logger <simso.core.Logger.Logger>`.
         """
         return self._logger.logs
+
+    @property
+    def measurements(self):
+        return self._measurements
 
     @property
     def logger(self):

@@ -2,6 +2,7 @@
 
 from SimPy.Simulation import Process, hold, passivate
 from simso.core.JobEvent import JobEvent
+from simso.core.Measurement import Measurement
 from math import ceil
 
 
@@ -88,6 +89,18 @@ class Job(Process):
         self._sim.logger.log(self.name + " Preempted! ret: " +
                              str(self.interruptLeft), kernel=True)
 
+    def _extractUsefulInfo(self):
+            cycles_per_ms = self._sim.cycles_per_ms
+
+            activation_date = self._activation_date / cycles_per_ms
+            start_time = self.start_date / cycles_per_ms
+            end_time = self.end_date / cycles_per_ms
+            dead_line = self.absolute_deadline / cycles_per_ms
+            comp_time = self.computation_time / cycles_per_ms
+            response_time = self.response_time / cycles_per_ms
+
+            return Measurement(self.name, activation_date, start_time, end_time, dead_line, comp_time, response_time)
+
     def _on_terminated(self):
         self._on_stop_exec()
         self._etm.on_terminated(self)
@@ -97,6 +110,9 @@ class Job(Process):
         self._task.end_job(self)
         self._task.cpu.terminate(self)
         self._sim.logger.log(self.name + " Terminated.", kernel=True)
+
+        _measurement = self._extractUsefulInfo()
+        self._sim.addNewMeasurement(_measurement)
 
     def _on_abort(self):
         self._on_stop_exec()
@@ -291,7 +307,7 @@ class Job(Process):
             # Wait an execute order.
             yield passivate, self
 
-            # Execute the job.
+            #  Execute the job.
             if not self.interrupted():
                 self._on_execute()
                 # ret is a duration lower than the remaining execution time.

@@ -75,7 +75,7 @@ class TasksTab(Tab):
                 if i <= periodic_tasks:
                     task = self.configuration.add_task(
                         "Task " + str(i), i, period=pi, wcet=ci, deadline=pi)
-                else:
+                else: 
                     task = self.configuration.add_task(
                         "Task " + str(i), i, period=pi, wcet=ci, deadline=pi,
                         task_type="Sporadic",

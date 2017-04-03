@@ -9,7 +9,7 @@ from fractions import Fraction
 
 
 @scheduler("simso.schedulers.BF")
-class BF66(Scheduler):
+class BF(Scheduler):
     def init(self):
         self.t_f = 0
         self.waiting_schedule = False
@@ -203,7 +203,7 @@ class BF66(Scheduler):
         for z, proc in enumerate(self.processors):
             l = self.allocations[z][1]
             if l and l[0][0] not in self.timers:
-                timer = Timer(self.sim, BF66.end_event,
+                timer = Timer(self.sim, BF.end_event,
                               (self, z, l[0][0]), l[0][1],
                               cpu=proc, in_ms=False)
                 timer.start()
