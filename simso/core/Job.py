@@ -99,7 +99,7 @@ class Job(Process):
             comp_time = self.computation_time / cycles_per_ms
             response_time = self.response_time / cycles_per_ms
 
-            return Measurement(self.name, activation_date, start_time, end_time, dead_line, comp_time, response_time)
+            return Measurement(self.name, self._task.task_type, activation_date, start_time, end_time, dead_line, comp_time, response_time)
 
     def _on_terminated(self):
         self._on_stop_exec()

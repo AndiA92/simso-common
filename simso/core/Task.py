@@ -43,7 +43,7 @@ class TaskInfo(object):
         """
         self.name = name
         self.identifier = identifier
-        self.task_type = task_type
+        self._task_type = task_type
         self.period = period
         self.activation_date = activation_date
         self.n_instr = n_instr
@@ -77,6 +77,10 @@ class TaskInfo(object):
         Stack distance profile input file.
         """
         return self._stack_file
+
+    @property
+    def task_type(self):
+        return self._task_type
 
     def set_stack_file(self, stack_file, cur_dir):
         """
@@ -248,6 +252,10 @@ class GenericTask(Process):
         List of the jobs.
         """
         return self._jobs
+
+    @property
+    def task_type(self):
+        return self._task_info.task_type
 
     def end_job(self, job):
         self._last_cpu = self.cpu
