@@ -135,6 +135,14 @@ class Model(Simulation):
         if self._callback:
             self._callback(self.now())
 
+    def getAverageLoad(self):
+        sum_load = 0.0
+
+        for proc, load, overhead in self.results.calc_load():
+            sum_load += load
+
+        return sum_load / len(self.processors)
+
     def run_model(self):
         """ Execute the simulation."""
         self.initialize()
