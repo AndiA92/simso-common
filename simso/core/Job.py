@@ -99,7 +99,7 @@ class Job(Process):
             comp_time = self.computation_time / cycles_per_ms
             response_time = self.response_time / cycles_per_ms
 
-            return Measurement(self.name, self._task.task_type, activation_date, start_time, end_time, dead_line, comp_time, response_time)
+            return Measurement(self.name, self._task.task_type, self._aborted, activation_date, start_time, end_time, dead_line, comp_time, response_time)
 
     def _on_terminated(self):
         self._on_stop_exec()
@@ -123,6 +123,9 @@ class Job(Process):
         self._task.end_job(self)
         self._task.cpu.terminate(self)
         self._sim.logger.log("Job " + str(self.name) + " aborted! ret:" + str(self.ret))
+
+        _measurement = self._extractUsefulInfo()
+        self._sim.addNewMeasurement(_measurement)
 
     def is_running(self):
         """

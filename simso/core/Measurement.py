@@ -1,9 +1,10 @@
 class Measurement:
-    fieldNames = ['TaskName', 'TaskType', 'ActivationTime', 'StartTime', 'EndTime', 'Deadline', 'CompTime', 'RespTime']
+    fieldNames = ['TaskName', 'TaskType', 'Aborted', 'ActivationTime', 'StartTime', 'EndTime', 'Deadline', 'CompTime', 'RespTime']
 
-    def __init__(self, taskName, taskType, activationTime, startTime, endTime, deadline, compTime, respTime):
+    def __init__(self, taskName, taskType, aborted, activationTime, startTime, endTime, deadline, compTime, respTime):
         self._taskName = taskName
         self._taskType = taskType
+        self._aborted = aborted
         self._activationTime = activationTime
         self._startTime = startTime
         self._endTime = endTime

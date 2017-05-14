@@ -6,8 +6,7 @@ import math
 from simso.configuration import Configuration
 from simso.core import Model
 from simso.generator.task_generator import StaffordRandFixedSum, \
-    gen_periods_loguniform, gen_periods_uniform, gen_periods_discrete, \
-    gen_tasksets, UUniFastDiscard, gen_kato_utilizations
+    gen_periods_loguniform, gen_tasksets
 
 
 def get_periods():
@@ -73,8 +72,8 @@ def main(argv):
     ]
 
     with open(tasksFileName, 'w+') as csvfile:
-        fieldnames = ['Index', 'Algo', 'NrOfProc', 'Utilization', 'NrOfPeriodic', 'NrOfSporadic', 'AvgPeriod_Periodic',
-                      'AvgActivation_Sporadic', 'AvgResp_Periodic', 'AvgResp_Sporadic', 'Avg_CPU']
+        fieldnames = ['Index', 'Successful', 'Algo', 'NrOfProc', 'Utilization', 'NrOfPeriodic', 'NrOfSporadic', 'AvgPeriod_Periodic',
+                      'AvgActivation_Sporadic', 'TaskName', 'TaskType', 'RespTime', 'Avg_CPU']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
@@ -91,7 +90,7 @@ def main(argv):
                 taskset = gen_tasksets(u, p)[0]
 
                 print (
-                    "Generating configuration with id " + str(runCounter) + ", NrOfSporadic: " + str(nrOfSporadic) + ", Utilization: " + str(utilization))
+                    "Generating configuration with id " + str(runCounter) + " NrOfPeriodic: " + str(nrOfPeriodic) + ", NrOfSporadic: " + str(nrOfSporadic) + ", Utilization: " + str(utilization))
 
                 configuration = Configuration()
                 configuration.duration = 100 * configuration.cycles_per_ms
@@ -124,41 +123,40 @@ def main(argv):
                     # Init a model from the configuration.
                     model = Model(configuration)
                     # Execute the simulation.
-                    model.run_model()
+
+                    successFul = False
+                    try:
+                        model.run_model()
+                        successFul = True
+                    except:
+                        print('Algorithm ' + scheduler + " failed!")
+                        successFul = False
 
                     print("Finished for algo: " + scheduler)
 
-                    periodicRespTime = 0
-                    sporadicRespTime = 0
-                    periodicCounter = 0
-                    sporadicCounter = 0
+                    if(successFul):
+                        # Print response times
+                        for measurement in model._measurements:
+                            taskName = measurement._taskName
+                            taskType = measurement._taskType
+                            respTime = measurement._respTime
 
-                    # Print response times
-                    for measurement in model._measurements:
-                        if (measurement._taskType == "Periodic"):
-                            periodicRespTime += measurement._respTime
-                            periodicCounter +=1
-                        else:
-                            sporadicRespTime += measurement._respTime
-                            sporadicCounter +=1
+                            averageCPULoad = model.getAverageLoad()
 
-                    avgRespPeriodic = periodicRespTime / periodicCounter
-                    avgRespSporadic = sporadicRespTime / sporadicCounter
-
-                    averageCPULoad = model.getAverageLoad()
-
-                    writer.writerow({fieldnames[0]: runCounter,
-                                     fieldnames[1]: scheduler,
-                                     fieldnames[2]: procCount,
-                                     fieldnames[3]: utilization,
-                                     fieldnames[4]: nrOfPeriodic,
-                                     fieldnames[5]: nrOfSporadic,
-                                     fieldnames[6]: sumOfPeriods_Periodic / nrOfPeriodic,
-                                     fieldnames[7]: sumOfActivations_Sporadic / nrOfSporadic,
-                                     fieldnames[8]: avgRespPeriodic,
-                                     fieldnames[9]: avgRespSporadic,
-                                     fieldnames[10]: averageCPULoad}
-                                    )
+                            writer.writerow({fieldnames[0]: runCounter,
+                                            fieldnames[1]: successFul,
+                                            fieldnames[2]: scheduler,
+                                            fieldnames[3]: procCount,
+                                            fieldnames[4]: utilization,
+                                            fieldnames[5]: nrOfPeriodic,
+                                            fieldnames[6]: nrOfSporadic,
+                                            fieldnames[7]: sumOfPeriods_Periodic / nrOfPeriodic,
+                                            fieldnames[8]: sumOfActivations_Sporadic / nrOfSporadic,
+                                            fieldnames[9]: taskName,
+                                            fieldnames[10]: taskType,
+                                            fieldnames[11]: respTime,
+                                            fieldnames[12]: averageCPULoad}
+                                            )
 
             else:
                 print(
